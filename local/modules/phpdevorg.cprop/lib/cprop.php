@@ -11,7 +11,7 @@ class CIBlockPropertyCProp
     {
         return array(
             'PROPERTY_TYPE' => 'S',
-            'USER_TYPE' => 'C',
+            'USER_TYPE' => 'ComplexProperty',
             'DESCRIPTION' => Loc::getMessage('IEX_CPROP_DESC'),
             'GetPropertyFieldHtml' => array(__CLASS__,  'GetPropertyFieldHtml'),
             'ConvertToDB' => array(__CLASS__, 'ConvertToDB'),
@@ -73,73 +73,65 @@ class CIBlockPropertyCProp
         return $value;
     }
 
-    public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
-    {
-        $btnAdd = Loc::getMessage('IEX_CPROP_SETTING_BTN_ADD');
-        $settingsTitle =  Loc::getMessage('IEX_CPROP_SETTINGS_TITLE');
+public static function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
+{
+    $btnAdd = Loc::getMessage('IEX_CPROP_SETTING_BTN_ADD');
+    $settingsTitle = Loc::getMessage('IEX_CPROP_SETTINGS_TITLE');
 
-        $arPropertyFields = array(
-            'USER_TYPE_SETTINGS_TITLE' => $settingsTitle,
-            'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'DEFAULT_VALUE', 'SEARCHABLE', 'SMART_FILTER', 'WITH_DESCRIPTION', 'FILTRABLE', 'MULTIPLE_CNT', 'IS_REQUIRED'),
-            'SET' => array(
-                'MULTIPLE_CNT' => 1,
-                'SMART_FILTER' => 'N',
-                'FILTRABLE' => 'N',
-            ),
-        );
+    $arPropertyFields = array(
+        'USER_TYPE_SETTINGS_TITLE' => $settingsTitle,
+        'HIDE' => array('ROW_COUNT', 'COL_COUNT', 'DEFAULT_VALUE', 'SEARCHABLE', 'SMART_FILTER', 'WITH_DESCRIPTION', 'FILTRABLE', 'MULTIPLE_CNT', 'IS_REQUIRED'),
+        'SET' => array(
+            'MULTIPLE_CNT' => 1,
+            'SMART_FILTER' => 'N',
+            'FILTRABLE' => 'N',
+        ),
+    );
 
-        self::showJsForSetting($strHTMLControlName["NAME"]);
-        self::showCssForSetting();
+    self::showCssForSetting();
+    self::showJsForSetting($strHTMLControlName["NAME"]);
+    $result = '<tr><td colspan="2" align="center">
+        <table id="many-fields-table" class="many-fields-table internal">         
+            <tr valign="top" class="heading mf-setting-title">
+               <td>XML_ID</td>
+               <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_TITLE') . '</td>
+               <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_SORT') . '</td>
+               <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_TYPE') . '</td>
+            </tr>';
 
-        $result = '<tr><td colspan="2" align="center">
-            <table id="many-fields-table" class="many-fields-table internal">        
-                <tr valign="top" class="heading mf-setting-title">
-                   <td>XML_ID</td>
-                   <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_TITLE') . '</td>
-                   <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_SORT') . '</td>
-                   <td>' . Loc::getMessage('IEX_CPROP_SETTING_FIELD_TYPE') . '</td>
-                </tr>';
+    $arSetting = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
 
-
-        $arSetting = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
-
-        if (!empty($arSetting)) {
-            foreach ($arSetting as $code => $arItem) {
-                $result .= '
-                       <tr valign="top">
-                           <td><input type="text" class="inp-code" size="20" value="' . $code . '"></td>
-                           <td><input type="text" class="inp-title" size="35" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_TITLE]" value="' . $arItem['TITLE'] . '"></td>
-                           <td><input type="text" class="inp-sort" size="5" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_SORT]" value="' . $arItem['SORT'] . '"></td>
-                           <td>
-                                <select class="inp-type" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_TYPE]">
-                                    ' . self::getOptionList($arItem['TYPE']) . '
-                                </select>                        
-                           </td>
-                       </tr>';
-            }
-        }
-
-        $result .= '
+    if (!empty($arSetting)) {
+        foreach ($arSetting as $code => $arItem) {
+            $result .= '
                <tr valign="top">
-                    <td><input type="text" class="inp-code" size="20"></td>
-                    <td><input type="text" class="inp-title" size="35"></td>
-                    <td><input type="text" class="inp-sort" size="5" value="500"></td>
-                    <td>
-                        <select class="inp-type"> ' . self::getOptionList() . '</select>                        
-                    </td>
-               </tr>
-             </table>   
-                
-                <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <input type="button" value="' . $btnAdd . '" onclick="addNewRows()">
-                    </td>
-                </tr>
-                </td></tr>';
-
-        return $result;
+                  <td><input type="text" class="inp-code" size="20" value="' . htmlspecialcharsbx($code) . '"></td>
+                  <td><input type="text" class="inp-title" size="35" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_TITLE]" value="' . htmlspecialcharsbx($arItem['TITLE']) . '"></td>
+                  <td><input type="text" class="inp-sort" size="5" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_SORT]" value="' . $arItem['SORT'] . '"></td>
+                  <td>
+                     <select class="inp-type" name="' . $strHTMLControlName["NAME"] . '[' . $code . '_TYPE]">
+                        ' . self::getOptionList($arItem['TYPE']) . '
+                     </select>                               
+                  </td>
+               </tr>';
+        }
     }
 
+    $result .= '
+           <tr valign="top">
+              <td><input type="text" class="inp-code" size="20"></td>
+              <td><input type="text" class="inp-title" size="35"></td>
+              <td><input type="text" class="inp-sort" size="5" value="500"></td>
+              <td><select class="inp-type">' . self::getOptionList() . '</select></td>
+           </tr>
+        </table>  
+        <div style="text-align: center; margin-top: 10px;">
+           <input type="button" value="' . $btnAdd . '" onclick="addNewRows()">
+        </div>
+        </td></tr>';
+
+    return $result;
+}
     public static function PrepareUserSettings($arProperty)
     {
         $result = [];
@@ -172,47 +164,34 @@ class CIBlockPropertyCProp
         return $result;
     }
 
-    public static function ConvertToDB($arProperty, $arValue)
-    {
-        $arFields = self::prepareSetting($arProperty['USER_TYPE_SETTINGS']);
-
-        foreach ($arValue['VALUE'] as $code => $value) {
-            if ($arFields[$code]['TYPE'] === 'file') {
-                $arValue['VALUE'][$code] = self::prepareFileToDB($value);
-            }
-        }
-
-        $isEmpty = true;
-        foreach ($arValue['VALUE'] as $v) {
-            if (!empty($v)) {
-                $isEmpty = false;
-                break;
-            }
-        }
-
-        if ($isEmpty === false) {
-            $arResult['VALUE'] = json_encode($arValue['VALUE']);
-        } else {
-            $arResult = ['VALUE' => '', 'DESCRIPTION' => ''];
-        }
-
-        return $arResult;
+public static function ConvertToDB($arProperty, $arValue)
+{
+    if (!isset($arValue['VALUE']) || !is_array($arValue['VALUE'])) {
+        return ['VALUE' => ''];
     }
 
-    public static function ConvertFromDB($arProperty, $arValue)
-    {
-        $return = array();
+    $data = $arValue['VALUE'];
+    $json = json_encode(
+        $data,
+        JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
 
-        if (!empty($arValue['VALUE'])) {
-            $arData = json_decode($arValue['VALUE'], true);
+    return ['VALUE' => is_string($json) ? $json : ''];
+}
 
-            foreach ($arData as $code => $value) {
-                $return['VALUE'][$code] = $value;
-            }
+public static function ConvertFromDB($arProperty, $arValue)
+{
+    $result = ['VALUE' => []];
+
+    if (!empty($arValue['VALUE']) && is_string($arValue['VALUE'])) {
+        $decoded = json_decode($arValue['VALUE'], true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            $result['VALUE'] = $decoded;
         }
-        return $return;
     }
 
+    return $result;
+}
     //Internals
 
     private static function showString($code, $title, $arValue, $strHTMLControlName)
@@ -332,7 +311,6 @@ class CIBlockPropertyCProp
                         )
                     );
                 } else {
-                    // Фоллбэк, если модуль fileman отключен
                     echo '<textarea name="'.$fieldName.'" rows="10" cols="50">'.htmlspecialcharsbx($fieldValue).'</textarea>';
                 }
                 ?>
@@ -473,91 +451,64 @@ class CIBlockPropertyCProp
         }
     }
 
-    private static function showJs()
-    {
+private static function showJs()
+{
+    if (!self::$showedJs) {
+        self::$showedJs = true;
         $showText = Loc::getMessage('IEX_CPROP_SHOW_TEXT');
         $hideText = Loc::getMessage('IEX_CPROP_HIDE_TEXT');
-
-        CJSCore::Init(array("jquery"));
-        if (!self::$showedJs) {
-            self::$showedJs = true;
-        ?>
-            <script>
-                $(document).on('click', 'a.mf-toggle', function(e) {
-                    e.preventDefault();
-
-                    var table = $(this).closest('tr').find('table.mf-fields-list');
-                    $(table).toggleClass('active');
-                    if ($(table).hasClass('active')) {
-                        $(this).text('<?= $hideText ?>');
-                    } else {
-                        $(this).text('<?= $showText ?>');
-                    }
-                });
-
-                $(document).on('click', 'a.mf-delete', function(e) {
-                    e.preventDefault();
-
-                    var textInputs = $(this).closest('tr').find('input[type="text"]');
-                    $(textInputs).each(function(i, item) {
-                        $(item).val('');
-                    });
-
-                    var textarea = $(this).closest('tr').find('textarea');
-                    $(textarea).each(function(i, item) {
-                        $(item).text('');
-                    });
-
-                    var checkBoxInputs = $(this).closest('tr').find('input[type="checkbox"]');
-                    $(checkBoxInputs).each(function(i, item) {
-                        $(item).attr('checked', 'checked');
-                    });
-
-                    $(this).closest('tr').hide('slow');
-                });
-            </script>
-        <?
-        }
-    }
-
-    private static function showJsForSetting($inputName)
-    {
-        CJSCore::Init(array("jquery"));
         ?>
         <script>
-            function addNewRows() {
-                $("#many-fields-table").append('' +
-                    '<tr valign="top">' +
-                    '<td><input type="text" class="inp-code" size="20"></td>' +
-                    '<td><input type="text" class="inp-title" size="35"></td>' +
-                    '<td><input type="text" class="inp-sort" size="5" value="500"></td>' +
-                    '<td><select class="inp-type"><?= self::getOptionList() ?></select></td>' +
-                    '</tr>');
-            }
-
-
-            $(document).on('change', '.inp-code', function() {
-                var code = $(this).val();
-
-                if (code.length <= 0) {
-                    $(this).closest('tr').find('input.inp-title').removeAttr('name');
-                    $(this).closest('tr').find('input.inp-sort').removeAttr('name');
-                    $(this).closest('tr').find('select.inp-type').removeAttr('name');
-                } else {
-                    $(this).closest('tr').find('input.inp-title').attr('name', '<?= $inputName ?>[' + code + '_TITLE]');
-                    $(this).closest('tr').find('input.inp-sort').attr('name', '<?= $inputName ?>[' + code + '_SORT]');
-                    $(this).closest('tr').find('select.inp-type').attr('name', '<?= $inputName ?>[' + code + '_TYPE]');
+        BX.ready(function(){
+            BX.bindDelegate(document.body, "click", {tagName: "a", className: "mf-toggle"}, function(e){
+                e.preventDefault();
+                var table = BX.findChild(this.parentNode.parentNode, {tagName: "table", className: "mf-fields-list"}, true);
+                if (table) {
+                    BX.toggleClass(table, "active");
+                    if (BX.hasClass(table, "active")) {
+                        this.innerHTML = '<?php echo $hideText; ?>';
+                    } else {
+                        this.innerHTML = '<?php echo $showText; ?>';
+                    }
                 }
             });
 
-            $(document).on('input', '.inp-sort', function() {
-                var num = $(this).val();
-                $(this).val(num.replace(/[^0-9]/gim, ''));
+            BX.bindDelegate(document.body, "click", {tagName: "a", className: "mf-delete"}, function(e){
+                e.preventDefault();
+                var tr = this.parentNode.parentNode;
+                // Очистить все input
+                var inputs = BX.findChildren(tr, {tagName: "input"}, true);
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].type === "text") inputs[i].value = "";
+                    if (inputs[i].type === "checkbox") inputs[i].checked = true;
+                }
+                var textareas = BX.findChildren(tr, {tagName: "textarea"}, true);
+                for (var i = 0; i < textareas.length; i++) {
+                    textareas[i].value = "";
+                }
+                BX.addClass(tr, "bx-hidden"); // Скрыть плавно
             });
+        });
         </script>
-        <?
+        <?php
     }
-
+}
+private static function showJsForSetting($inputName)
+{
+    ?>
+    <script>
+    function addNewRows() {
+        var table = document.getElementById("many-fields-table");
+        var row = table.insertRow(-1);
+        row.innerHTML = 
+            '<td><input type="text" class="inp-code" size="20"></td>' +
+            '<td><input type="text" class="inp-title" size="35"></td>' +
+            '<td><input type="text" class="inp-sort" size="5" value="500"></td>' +
+            '<td><select class="inp-type"><?php echo addslashes(self::getOptionList()); ?></select></td>';
+    }
+    </script>
+    <?php
+}
     private static function showCssForSetting()
     {
         if (!self::$showedCss) {

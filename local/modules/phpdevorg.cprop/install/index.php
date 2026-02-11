@@ -82,12 +82,13 @@ class phpdevorg_cprop extends CModule
         return true;
     }
 
-    function getEvents()
-    {
-        return [
-            ['FROM_MODULE' => 'main', 'EVENT' => 'OnUserTypeBuildList', 'TO_METHOD' => 'GetUserTypeDescription'],
-        ];
-    }
+function getEvents()
+{
+    return [
+        ['FROM_MODULE' => 'main', 'EVENT' => 'OnUserTypeBuildList', 'TO_METHOD' => 'GetUserTypeDescription'],
+        ['FROM_MODULE' => 'iblock', 'EVENT' => 'OnIBlockPropertyBuildList', 'TO_METHOD' => 'GetUserTypeDescription'], 
+    ];
+}
     function InstallEvents()
     {
         $eventManager = EventManager::getInstance();
